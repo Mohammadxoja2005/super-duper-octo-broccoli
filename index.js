@@ -37,7 +37,21 @@ app.get('/', (req, res) => {
     res.send("hello world")
 })
 
-setInterval(() => {
+// setInterval(() => {
+
+// }, 50000)
+
+app.get('/data', (req, res) => {
+    // const formData = querystring.stringify({
+    //   client_id: clientId,
+    //   client_secret: clientSecret,
+    //   grant_type: "authorization_code",
+    //   code: code,
+    //   redirect_uri: redirectUri
+    // });
+})
+
+function writeTokens() {
     fs.readFile(filePathForRefreshTokens, 'utf8', (err, refreshToken) => {
         if (err) {
             console.log(err);
@@ -77,21 +91,12 @@ setInterval(() => {
                 });
         }
     })
-
-}, 50000)
-
-app.get('/data', (req, res) => {
-    // const formData = querystring.stringify({
-    //   client_id: clientId,
-    //   client_secret: clientSecret,
-    //   grant_type: "authorization_code",
-    //   code: code,
-    //   redirect_uri: redirectUri
-    // });
-})
+}
 
 app.post('/create', (req, res) => {
     const { name, phone } = req.body;
+
+    writeTokens();
 
     fs.readFile(filePathForAccessTokens, 'utf8', async (err, accessToken) => {
         if (err) {
