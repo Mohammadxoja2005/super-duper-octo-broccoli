@@ -4,7 +4,6 @@ const axios = require('axios');
 const querystring = require('querystring');
 const fs = require('fs');
 
-const { Client } = require('amocrm-js');
 
 const filePathForRefreshTokens = 'refresh_tokens.txt';
 const filePathForAccessTokens = 'access_tokens.txt';
