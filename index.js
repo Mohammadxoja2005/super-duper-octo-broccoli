@@ -91,7 +91,7 @@ app.get('/data', (req, res) => {
     // });
 })
 
-app.get('/create', (req, res) => {
+app.post('/create', (req, res) => {
     const { name, phone } = req.body;
 
     fs.readFile(filePathForAccessTokens, 'utf8', async (err, accessToken) => {
@@ -108,14 +108,14 @@ app.get('/create', (req, res) => {
 
         const contacts = [
             {
-                name: "Test",
+                name: name,
                 responsible_user_id: 9649578,
                 custom_fields_values: [
                     {
                         field_id: 866999,
                         values: [
                             {
-                                value: "+79121234567",
+                                value: phone,
                                 enum_code: "WORK"
                             }
                         ]
