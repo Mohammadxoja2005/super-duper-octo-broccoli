@@ -4,6 +4,7 @@ const axios = require('axios');
 const querystring = require('querystring');
 const cron = require('node-cron');
 const fs = require('fs');
+const cors = require("cors");
 
 const filePathForRefreshTokens = 'refresh_tokens.txt';
 const filePathForAccessTokens = 'access_tokens.txt';
@@ -16,6 +17,7 @@ const redirectUri = "https://itkeyuz.vercel.app/";
 const oauthUrl = `https://new1664891527.amocrm.ru/oauth2/access_token`;
 
 app.use(express.json());
+app.use(cors());
 
 app.listen(process.env.PORT || 3004, () => {
     console.log('server started...')
@@ -87,7 +89,6 @@ async function writeTokens() {
         }
     })
 }
-
 
 cron.schedule('0 */8 * * *', () => {
     writeTokens();
