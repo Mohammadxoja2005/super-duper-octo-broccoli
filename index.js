@@ -94,7 +94,7 @@ cron.schedule('0 */8 * * *', () => {
     writeTokens();
 });
 
-// writeTokens();
+writeTokens();
 
 app.post('/create', (req, res) => {
     const { name, phone } = req.body;
@@ -138,9 +138,6 @@ app.post('/create', (req, res) => {
             });
     })
 })
-
-
-
 
 
 // const client = new Client({
