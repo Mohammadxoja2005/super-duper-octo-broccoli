@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const axios = require('axios');
 const querystring = require('querystring');
+const cron = require('node-cron');
 const fs = require('fs');
 
 const filePathForRefreshTokens = 'refresh_tokens.txt';
@@ -9,7 +10,7 @@ const filePathForAccessTokens = 'access_tokens.txt';
 
 const clientId = "0e687859-5200-418f-9a1f-7cd37f72762e";
 const clientSecret = "597CfLj8TjFar8ZQ3NO0HCbDPyx0IOoI69mnMWLZpLzDKRLOfZzKXi9P2rFiuWH2";
-const code = "def50200993ff6cfa9c2d6a70e63355320f1b4c4feadb71bc25f012acbc7de3af58c9f3e7d10580a83b422d0c23ebd34054ca20c7aa982690b4bd8de9f161f94c552f4d65d648209d40f3c06e88cc23d33fd32faa026c9d96b4519cac36473883c460cd56cf61781de6c20eff63bf72fc01fed77debf8f1235f248ac3856fa251f641b4a9b5134241fd9ecd7cb829e835770e1d659b8469fc1d90ccc5f1ecd01ba4663e1dbab91bd22bd6e95b46ff0b231c8d6aa799530f6b655de6ba88bacbf87eeddca0b69ea0da506743518a0f90141a6034ddc1b2217a01fb9ef040cb44afc420a813ea20105925ae7b23c67cd2831483d1d78145aa928f06a40895a081002e252a3624065fb5c12c98883a88e1a58523234983ba103806f3ccef3120f69685cbba9a45aaac8d42c83384b5069b8ecf1cb4d3eaa3f15c061a13aba509af9f2343563212f5a5209979bd5fd9c152c6c11b7bca0ce790b336df7a2bc61ef581d3c0a33d9b28667561bffe60d4f038fcd79ceda48e2894e8729bdd861995d9225de2e9e7663e9ce201b1a2933b13f84862b97b851d46f9f85c36e99e726d3649247a42107a1b4fc76ee8bd042de017735145f08cd6a90f3c80c88742b1396cc1738e3b1b976855541ae5286ac2d1e943fb0b8a199795f735a519a52188477ea5a9800b7b3d759688de48a97";
+const code = "def502006b96e45f1e6818c620ca7a3ef888369cfcb45e94b4b73155518b7f5bea986a3eaec837d4f233a592074b8881e357e512809c2c97d076f840b7d865431ff7f0ee3184440e356f35891972996219baa3f9b7b8f093a52145b0dc7d5255800585ed9a01317ffb4efbb7b80ebcdc4f9109087092f2a7cdce805afaca472cf5769b61ceccf8424a6019ee6d53753d93ba505d170d9693dcf622b8e21901ffca9bb56fbc718b28834bbc380a7631a2ba3aaa1e885699ea6aa69d1d33caaddef87c20807d1e09e8218ed8f83b6ff4ff1b39793df343fa08da3eca249ee80431278c5811d6993fe7feb09cefa5038d9d038f2db4ecb9b80dc7a6f0c8af8659f14ec6471fabe53f37f3fbbb9a2b7d1eb16880f6dcf6262233972d0ee5e64151f4a3c004de81b77b7df2ac5b6ace8cb5ee0e4e8f85794010abea4688d45b634fe4fa2e82b6457046217a5035b46180bfd5f58953b64fc38a6e6a94972cb000e2a5d4e88800d31a0662d48bbd11974850418834b4de0d7611b0d5aca66d70fc36e746693e90146bf628b0d855e2db534fb02c952769c5b83c358121976036d7b87a639f1e97195e86526690fa8c8d75dea3c79c318608b64a4335665909099cb0b398013ec2144b723d95dda5bc75fba5bf0c6c7cede37fc72a91e3a7621d97b35441981537113877ed23592720";
 const redirectUri = "https://itkeyuz.vercel.app/";
 
 const oauthUrl = `https://new1664891527.amocrm.ru/oauth2/access_token`;
@@ -31,7 +32,7 @@ app.get('/', (req, res) => {
 //         grant_type: "authorization_code",
 //         code: code,
 //         redirect_uri: redirectUri
-//     }); 
+//     });
 
 //     axios.post(oauthUrl, formData, {
 //         headers: {
@@ -42,7 +43,7 @@ app.get('/', (req, res) => {
 //         res.json("success");
 //     })
 
-// })
+// }) 
 
 async function writeTokens() {
     fs.readFile(filePathForRefreshTokens, 'utf8', (err, refreshToken) => {
@@ -87,56 +88,54 @@ async function writeTokens() {
     })
 }
 
+
+cron.schedule('0 */8 * * *', () => {
+    writeTokens();
+});
+
 // writeTokens();
 
 app.post('/create', (req, res) => {
     const { name, phone } = req.body;
 
-    writeTokens()
-        .then(() => {
-            fs.readFile(filePathForAccessTokens, 'utf8', async (err, accessToken) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-
-                const config = {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                };
-
-                const contacts = [
-                    {
-                        name: name,
-                        responsible_user_id: 9649578,
-                        custom_fields_values: [
-                            {
-                                field_id: 866999,
-                                values: [
-                                    {
-                                        value: phone,
-                                        enum_code: "WORK"
-                                    }
-                                ]
-                            }
-                        ],
-                    }
-                ]
-
-                await axios
-                    .post('https://new1664891527.amocrm.ru/api/v4/contacts', contacts, config)
-                    .then((response) => {
-                        res.json(response.data);
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    });
-            })
-        })
-        .catch((err) => {
+    fs.readFile(filePathForAccessTokens, 'utf8', async (err, accessToken) => {
+        if (err) {
             console.log(err);
-        })
+            return;
+        }
+
+        const config = {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        };
+
+        const contacts = [
+            {
+                name: name,
+                responsible_user_id: 9649578,
+                custom_fields_values: [
+                    {
+                        field_id: 866999,
+                        values: [
+                            {
+                                value: phone,
+                                enum_code: "WORK"
+                            }
+                        ]
+                    }
+                ],
+            }
+        ]
+
+        await axios.post('https://new1664891527.amocrm.ru/api/v4/contacts', contacts, config)
+            .then((response) => {
+                res.json(response.data);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    })
 })
 
 
