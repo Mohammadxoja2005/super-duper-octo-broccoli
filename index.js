@@ -119,31 +119,68 @@ app.post('/create', (req, res) => {
             },
         };
 
+        // const contacts = [
+        //     {
+        //         name: name,
+        //         responsible_user_id: 9649578,
+        //         custom_fields_values: [
+        //             {
+        //                 field_id: 866999,
+        //                 values: [
+        //                     {
+        //                         value: phone,
+        //                         enum_code: "WORK"
+        //                     }
+        //                 ]
+        //             }
+        //         ],
+        //     }
+        // ] 
+
+
         const contacts = [
             {
-                name: name,
-                responsible_user_id: 9649578,
-                custom_fields_values: [
-                    {
-                        field_id: 866999,
-                        values: [
-                            {
-                                value: phone,
-                                enum_code: "WORK"
-                            }
-                        ]
-                    }
-                ],
+                name: "Itkey Сделки",
+                price: 0,
+                _embedded: {
+                    contacts: [
+                        {
+                            first_name: name,
+                            created_at: 1608905348,
+                            responsible_user_id: 9649578,
+                            updated_by: 0,
+                            custom_fields_values: [
+                                {
+                                    field_id: 866999,
+                                    values: [
+                                        {
+                                            enum_code: "WORK",
+                                            value: phone
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
             }
         ]
 
-        await axios.post('https://new1664891527.amocrm.ru/api/v4/contacts', contacts, config)
+        await axios.post('https://new1664891527.amocrm.ru/api/v4/leads/complex', contacts, config)
             .then((response) => {
                 res.json(response.data);
             })
             .catch((error) => {
                 console.error(error);
             });
+
+        // await axios.post('https://new1664891527.amocrm.ru/api/v4/contacts', contacts, config)
+        //     .then((response) => {
+        //         res.json(response.data);
+        //     })
+        //     .catch((error) => {
+        //         console.error(error);
+        //     });
     })
 })
 
