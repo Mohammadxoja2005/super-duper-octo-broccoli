@@ -11,7 +11,7 @@ const filePathForAccessTokens = 'access_tokens.txt';
 
 const clientId = "0e687859-5200-418f-9a1f-7cd37f72762e";
 const clientSecret = "597CfLj8TjFar8ZQ3NO0HCbDPyx0IOoI69mnMWLZpLzDKRLOfZzKXi9P2rFiuWH2";
-const code = "def502006b96e45f1e6818c620ca7a3ef888369cfcb45e94b4b73155518b7f5bea986a3eaec837d4f233a592074b8881e357e512809c2c97d076f840b7d865431ff7f0ee3184440e356f35891972996219baa3f9b7b8f093a52145b0dc7d5255800585ed9a01317ffb4efbb7b80ebcdc4f9109087092f2a7cdce805afaca472cf5769b61ceccf8424a6019ee6d53753d93ba505d170d9693dcf622b8e21901ffca9bb56fbc718b28834bbc380a7631a2ba3aaa1e885699ea6aa69d1d33caaddef87c20807d1e09e8218ed8f83b6ff4ff1b39793df343fa08da3eca249ee80431278c5811d6993fe7feb09cefa5038d9d038f2db4ecb9b80dc7a6f0c8af8659f14ec6471fabe53f37f3fbbb9a2b7d1eb16880f6dcf6262233972d0ee5e64151f4a3c004de81b77b7df2ac5b6ace8cb5ee0e4e8f85794010abea4688d45b634fe4fa2e82b6457046217a5035b46180bfd5f58953b64fc38a6e6a94972cb000e2a5d4e88800d31a0662d48bbd11974850418834b4de0d7611b0d5aca66d70fc36e746693e90146bf628b0d855e2db534fb02c952769c5b83c358121976036d7b87a639f1e97195e86526690fa8c8d75dea3c79c318608b64a4335665909099cb0b398013ec2144b723d95dda5bc75fba5bf0c6c7cede37fc72a91e3a7621d97b35441981537113877ed23592720";
+const code = "def502008fbad092ef3f45294bbde73b33e66539857ab8823d33753a170fd9cc1e6ed109fcb9ecc3590ef4f502fc3f13a09ba30f12f46a7abe483c293f98dca9dc3e198eb66d088c6f0fe2a3a2b931231436938ac2d37a1fbfb76b52b1de2aa8fb0632b41c523a5de88776331ef3d3a48e15b5185f70d97c1f23f5a25c04a834952b3232ca20b9e02ac21a52e5c645305a890b5ecc470bec463d9cfe5fbfbbd02048d16366d264fb568dc7652460cee03d35256535680b8892eddbd87583b58a1244af7a979e8eea0bdcf6a2e2e5ea220d45d5ad025df7046ee6c6c1d230614e0b79009735c49074ec39e8e31d56fed648192978215126357af0ca244649b7fee917abffb5600a26808ff432006e88c73ddc79f4669bf9b92dadfadf88e50f6348d8297a96a317fea8576ebaef17c3f5cae91c93975318626f021e0b5261a368f35c49153a2349e2d974b4b36e06851173fc394d3928d2c6806242460d920fd927c968556797a4bd2a7d6d0f94efddaaa4bfc12e05d0ed1ea9d99ee4fe60fc5fe5237b05af04b9ab590335aaf692d87099606d18db1d4f50973c3aa84358723c515821e82b0559e06e86abb12966f95b9c593af04f130da0e3434daccbb3ef9486bf6f8aea126bbe7147de8b7393135f8c19a534d011130b657c83d356393de1c09c99de4a7e8e91b12f60ef";
 const redirectUri = "https://itkeyuz.vercel.app/";
 
 const oauthUrl = `https://new1664891527.amocrm.ru/oauth2/access_token`;
@@ -27,25 +27,34 @@ app.get('/', (req, res) => {
     res.send("hello world")
 })
 
-// app.get('/data', (req, res) => {
-//     const formData = querystring.stringify({
-//         client_id: clientId,
-//         client_secret: clientSecret,
-//         grant_type: "authorization_code",
-//         code: code,
-//         redirect_uri: redirectUri
-//     });
+app.post('/data', (req, res) => {
+    const { refreshCode } = req.body;
 
-//     axios.post(oauthUrl, formData, {
-//         headers: {
-//             'Content-Type': 'application/x-www-form-urlencoded'
-//         }
-//     }).then((response) => {
-//         console.log(response);
-//         res.json("success");
-//     })
+    const formData = querystring.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: "authorization_code",
+        code: refreshCode,
+        redirect_uri: redirectUri
+    });
 
-// }) 
+    axios.post(oauthUrl, formData, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    }).then((response) => {
+        fs.writeFile(filePathForRefreshTokens, response.data.refresh_token, (err) => {
+            if (err) {
+                console.error('Error writing to file:', err);
+            } else {
+                console.log('RefreshToken Code written successfully!');
+            }
+        });
+        res.json("success");
+    }).catch((err) => {
+        console.log(err);
+    })
+})
 
 async function writeTokens() {
     fs.readFile(filePathForRefreshTokens, 'utf8', (err, refreshToken) => {
@@ -66,7 +75,6 @@ async function writeTokens() {
                 }
             })
                 .then((response) => {
-                    console.log(response);
                     fs.writeFile(filePathForRefreshTokens, response.data.refresh_token, (err) => {
                         if (err) {
                             console.error('Error writing to file:', err);
