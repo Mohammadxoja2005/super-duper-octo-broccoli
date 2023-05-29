@@ -55,7 +55,7 @@ app.post('/data', (req, res) => {
             if (err) {
                 console.error('Error writing to file:', err);
             } else {
-                console.log('RefreshToken Code written successfully!');
+                console.log('Accesstoken Code written successfully!');
             }
         });
 
