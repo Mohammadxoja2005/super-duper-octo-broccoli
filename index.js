@@ -50,6 +50,15 @@ app.post('/data', (req, res) => {
                 console.log('RefreshToken Code written successfully!');
             }
         });
+
+        fs.writeFile(filePathForAccessTokens, response.data.access_token, (err) => {
+            if (err) {
+                console.error('Error writing to file:', err);
+            } else {
+                console.log('RefreshToken Code written successfully!');
+            }
+        });
+
         res.json("success");
     }).catch((err) => {
         console.log(err);
@@ -182,7 +191,6 @@ app.post('/create', (req, res) => {
         //     });
     })
 })
-
 
 // const client = new Client({
 //     domain: 'new1664891527',
