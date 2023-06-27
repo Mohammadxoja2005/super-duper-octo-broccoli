@@ -114,7 +114,7 @@ cron.schedule('0 */8 * * *', () => {
 writeTokens();
 
 app.post('/create', (req, res) => {
-    const { name, phone } = req.body;
+    const { name, phone, responsible_id, deal_name } = req.body;
 
     fs.readFile(filePathForAccessTokens, 'utf8', async (err, accessToken) => {
         if (err) {
@@ -148,14 +148,14 @@ app.post('/create', (req, res) => {
 
         const contacts = [
             {
-                name: "Itkey Сделки",
+                name: deal_name ? deal_name : 'Itkey Сделки',
                 price: 0,
                 _embedded: {
                     contacts: [
                         {
                             first_name: name,
                             created_at: 1608905348,
-                            responsible_user_id: 8671927,
+                            responsible_user_id: responsible_id ? responsible_id : 8671927,
                             updated_by: 0,
                             custom_fields_values: [
                                 {
